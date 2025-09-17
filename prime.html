@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prime Number Checker & Range</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; padding: 24px; max-width: 800px; margin: auto; line-height: 1.5; }
+    h1 { margin-top: 0; }
+    .card { border: 1px solid #ddd; padding: 16px; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+    label { display:block; margin-bottom:8px; font-weight:600; }
+    input[type="number"], input[type="text"] { padding:8px; width:100%; box-sizing: border-box; margin-bottom:12px; border-radius:4px; border:1px solid #ccc; }
+    button { padding:10px 14px; border-radius:6px; border:none; background:#1e88e5; color:white; cursor:pointer; font-weight:600; }
+    button:disabled { opacity:0.6; cursor: not-allowed; }
+    pre { background:#f7f7f7; padding:12px; border-radius:6px; overflow:auto; max-height:300px; }
+    .small { font-size:0.9em; color:#555; }
+  </style>
+</head>
+<body>
+  <h1>Prime Number Tools</h1>
+
+  <div class="card" id="singleCheck">
+    <h2>1) Check a single number</h2>
+    <label for="num">Enter an integer:</label>
+    <input id="num" type="number" placeholder="e.g. 17" />
+    <button id="checkBtn">Check Prime</button>
+    <p id="singleResult" class="small"></p>
+  </div>
+
+  <div class="card" id="rangeCheck">
+    <h2>2) List primes in a range</h2>
+    <label for="min">Start (min):</label>
+    <input id="min" type="number" placeholder="e.g. 1" />
+    <label for="max">End (max):</label>
+    <input id="max" type="number" placeholder="e.g. 100" />
+    <button id="listBtn">List Primes</button>
+    <p id="rangeInfo" class="small"></p>
+    <pre id="primesOutput"></pre>
+  </div>
+
+  <script>
+    
+    function isPrime(n) {
+      if (!Number.isInteger(n)) return false;
+      if (n <= 1) return false;
+      if (n <= 3) return true;
+      if (n % 2 === 0) return false;
+      const limit = Math.floor(Math.sqrt(n));
+      for (let i = 3; i <= limit; i += 2) {
+        if (n % i === 0) return false;
+      }
+      return true;
+    }
+
+    
+    function primesInRange(low, high) {
+      
+      low = Math.ceil(low);
+      high = Math.floor(high);
+      if (high < 2 || low > high) return [];
+
+      
+      const size = high + 1;
+      const isComposite = new Uint8Array(size); 
+      isComposite[0] = 1;
+      if (size > 1) isComposite[1] = 1;
+
+      const limit = Math.floor(Math.sqrt(high));
+      for (let p = 2; p <= limit; p++) {
+        if (!isComposite[p]) {
+          for (let multiple = p * p; multiple <= high; multiple += p) {
+            isComposite[multiple] = 1;
+          }
+        }
+      }
+
+      const result = [];
+      for (let i = Math.max(2, low); i <= high; i++) {
+        if (!isComposite[i]) result.push(i);
+      }
+      return result;
+    }
+
+    
+    const numInput = document.getElementById('num');
+    const checkBtn = document.getElementById('checkBtn');
+    const singleResult = document.getElementById('singleResult');
+
+    checkBtn.addEventListener('click', () => {
+      const val = Number(numInput.value);
+      if (!Number.isFinite(val) || !Number.isInteger(val)) {
+        singleResult.textContent = 'Please enter a valid integer.';
+        return;
+      }
+      if (isPrime(val)) {
+        singleResult.textContent = val + ' is a PRIME number.';
+      } else {
+        singleResult.textContent = val + ' is NOT a prime number.';
+      }
+    });
+
+    
+    const minInput = document.getElementById('min');
+    const maxInput = document.getElementById('max');
+    const listBtn = document.getElementById('listBtn');
+    const rangeInfo = document.getElementById('rangeInfo');
+    const primesOutput = document.getElementById('primesOutput');
+
+    listBtn.addEventListener('click', () => {
+      primesOutput.textContent = '';
+      rangeInfo.textContent = '';
+
+      let a = Number(minInput.value);
+      let b = Number(maxInput.value);
+
+      if (!Number.isFinite(a) || !Number.isFinite(b) || !Number.isInteger(a) || !Number.isInteger(b)) {
+        rangeInfo.textContent = 'Please enter valid integer bounds.';
+        return;
+      }
+
+      if (a > b) {
+        
+        [a, b] = [b, a];
+      }
+
+      
+      const maxRangeSize = 1_000_000; 
+      if (b - a > maxRangeSize) {
+        rangeInfo.textContent = `Range too large (>${maxRangeSize}). Please pick a smaller range.`;
+        return;
+      }
+
+      rangeInfo.textContent = `Computing primes between ${a} and ${b} ...`;
+      
+      const primes = primesInRange(a, b);
+      rangeInfo.textContent = `Found ${primes.length} prime(s) between ${a} and ${b}.`;
+      if (primes.length === 0) {
+        primesOutput.textContent = '(none)';
+      } else {
+        
+        primesOutput.textContent = primes.join(', ');
+      }
+    });
+
+    numInput.value = 17;
+    minInput.value = 1;
+    maxInput.value = 100;
+  </script>
+</body>
+</html>
