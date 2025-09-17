@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple HTML Page</title>
+  <style>
+    .ball {
+  position: fixed;
+  width: 100px;
+  height: 100px;
+  background: #000;
+  border-radius: 50%;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  z-index: 1000;
+  animation: move-corners 4s linear infinite, ball-scale 4s linear infinite;
+  transition: transform 0.3s;
+}
+
+@keyframes move-corners {
+  0%   { top: 20px; left: 20px; }
+  25%  { top: 20px; left: calc(100vw - 100px); }
+  50%  { top: calc(100vh - 100px); left: calc(100vw - 100px); }
+  75%  { top: calc(100vh - 100px); left: 20px; }
+  100% { top: 20px; left: 20px; }
+}
+  </style>
+</head>
+<body>
+<div class="ball"></div>
+ <link rel="stylesheet" href="style.css">
+</body>
+</html>
